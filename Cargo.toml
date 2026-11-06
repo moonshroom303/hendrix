@@ -13,6 +13,7 @@ exclude = ["target", "*.zip", "shroomsloops_*_reference.rs"]
 
 [lib]
 path = "lib.rs"
+crate-type = ["rlib", "staticlib"]
 
 [features]
 default = []

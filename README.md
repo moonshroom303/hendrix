@@ -1,90 +1,93 @@
 # HENDRIX
 
-**Real-time audio-to-MIDI conversion by Moonshroom Studio.**
+**Real-time audio-to-MIDI by Moonshroom Studio.**
 
-Hendrix turns instrument audio into MIDI notes and expressive pitch bends. Its mono mode makes a provisional pitch estimate from the first usable waveform cycle and verifies it afterward. Poly mode uses a longer analysis window to recognize basic chords.
+Play a guitar or another instrument and drive a synthesizer with MIDI notes and expressive bends. Hendrix offers fast monophonic tracking and longer-window polyphonic analysis, with a picking detector for repeated notes.
 
-[Moonshroom Studio](https://moonshroom.moonshroom303.chatgpt.site/) · [ShroomsLoops Studio](https://shroomsloops-studio-231026.moonshroom303.chatgpt.site/#) · [SoundCloud](https://www.soundcloud.com/moonshroom303) · [YouTube](https://www.youtube.com/@moonshroom303)
+[Website](https://moonshroom.moonshroom303.chatgpt.site/) · [SoundCloud](https://www.soundcloud.com/moonshroom303) · [YouTube](https://www.youtube.com/@moonshroom303) · [ShroomsLoops](https://shroomsloops-studio-231026.moonshroom303.chatgpt.site/#)
 
-![Hendrix interface](Hendrix.png)
+![Actual Hendrix standalone interface: English/German switch, Moonshroom logo and four website buttons](Hendrix.png)
 
-## Release scope
+## Downloads
 
-This repository contains the reusable Rust DSP engine, MIDI event adapter, project preset bank, and an embeddable egui interface. The interactive preview processes a synthetic test tone. Audio capture, device selection, and MIDI delivery are provided by the integrating host.
+The [first public beta](https://github.com/moonshroom303/hendrix/releases/tag/v0.1.0) provides three **Apple Silicon / macOS 12+** formats:
 
-The original ShroomsLoops module and GUI are included as integration references in `shroomsloops_engine_reference.rs` and `shroomsloops_gui_reference.rs`. They describe the existing host integration; the independently buildable library uses `engine.rs` and `gui.rs`.
+| Format | Package | Installation |
+| --- | --- | --- |
+| Audio Unit v2 | `Hendrix-0.1.0-macOS-arm64-AU.zip` | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
+| VST3 | `Hendrix-0.1.0-macOS-arm64-VST3.zip` | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
+| Standalone | `Hendrix-0.1.0-macOS-arm64-Standalone.zip` | Copy `Hendrix.app` to Applications or another local folder. |
 
-## Features
+Each ZIP includes instructions and license notices. The builds are ad-hoc signed; **Apple notarization is not included**. Intel, Windows and Linux binaries are not part of this beta. The Rust detection library is independently reusable.
 
-- Mono pitch tracking and basic polyphonic chord recognition.
-- Direct first-cycle estimation, followed by pitch verification.
-- Mono 5 / 10 / 15 ms acquisition limits: pitches recognized too late remain silent.
-- Picking threshold and minimum interval for retriggering repeated notes.
-- Input gate, stability, release, voice limit, note range, reference tuning, and transposition.
-- Dynamic or fixed velocity.
-- Mono pitch bends with ±2 / ±12 / ±24 semitone ranges and smoothing.
-- Optional audio passthrough.
-- Project-owned presets and a selectable default for new instances.
-- Original Hendrix artwork, rotary controls, detected-note feedback, and clickable developer links.
+## Getting sound
 
-## Latency
+1. Feed the instrument's audio into Hendrix. In the standalone app, **Audio / MIDI device settings** opens the audio input/output and MIDI-device preferences. Allow microphone input when macOS requests it for an input you want to use.
+2. Start with **MONO** for one note at a time. Use **POLY** for chords; polyphonic analysis takes longer.
+3. Send Hendrix's MIDI to the synth you want to play. In a compatible DAW, use the plugin's MIDI output. If the host cannot route MIDI from an audio effect, choose **Hendrix virtual MIDI port** and select that port as the synth's MIDI input. Each instance has its own numbered port.
+4. With the standalone app's first output option, MIDI goes to the device selected in its MIDI preferences. The virtual-port option also works with another application.
+5. Enable **Audio Passthrough** to retain the original instrument audio. Disable it if you want to hear only the synth. Set the same pitch-bend range at the receiving synth.
 
-“Direct” estimates pitch after a usable waveform period. Its onset depends on frequency and phase: roughly one to one-and-a-half periods for a clean tone, plus processing-block and hardware buffering. A 440 Hz tone has a period of about 2.27 ms; a low E at about 82 Hz needs roughly 12.1 ms per period. Harmonics, noise, and technique can make an initial estimate provisional or incorrect.
+The AU is a music effect, not a synthesizer. Hendrix itself does not generate a synth sound. Host MIDI-routing capabilities differ; the virtual port provides a macOS alternative.
 
-The 5 / 10 / 15 ms modes are acquisition limits, rather than promises of total audio-to-synth latency. Slow or ambiguous pitches are rejected. Polyphonic mode uses a longer analysis window. Mono picking and bend controls are inactive in Poly mode.
+## Controls and presets
 
-## Build
+- **EN / DE** changes the full main interface between English and German.
+- **Direct** estimates a mono note from the first usable waveform cycle and verifies the provisional pitch afterward.
+- **5 / 10 / 15 ms** are mono acquisition deadlines. Pitches recognized later are rejected.
+- **Pick Threshold** and **Minimum Interval** control new attacks on a repeated note.
+- Threshold, stability, release, voice count, lowest/highest note, A4 reference, transposition and velocity refine the tracking.
+- Mono bends support ±2 / ±12 / ±24 semitones and adjustable smoothing. Pitch bend affects the entire MIDI channel; this is not independent per-note polyphonic bend.
+- **Save** stores the current controls under the entered preset name. Loading preserves MIDI routing. The bank, language and controls are stored with plugin state; the standalone app remembers its own state.
+- **Set as Default** also saves the bank and selected starting preset for newly created instances on this Mac. Existing project instances retain their saved state.
+- Click the **Moonshroom logo** to open SoundCloud. The four right-column buttons open Website, SoundCloud, YouTube and ShroomsLoops in the system browser.
 
-Rust 1.88 or newer is required.
+The initial **My Guitar** preset uses the requested settings: Poly, −72 dB threshold, 20.5 ms stability, 69.1 ms release, one voice, D#1–C8, A4 = 431.4 Hz, zero transposition, dynamic velocity, Balanced verification and audio passthrough. Mono-only controls become available when MONO is selected.
+
+## Latency and practical limits
+
+Direct recognition needs a usable period of the played note. For a clean signal, the first estimate typically takes approximately one to one-and-a-half periods, plus block and hardware buffering. A4 at 440 Hz has a 2.27 ms period; low E near 82 Hz needs about 12.1 ms per period. Harmonics, noise and playing technique can produce a provisional wrong pitch.
+
+The timed modes are detection limits, not guaranteed end-to-end audio-to-synth latency. Poly mode uses longer analysis windows. Practical instrument and DAW testing remains part of this first beta.
+
+## Build the three macOS formats
+
+Install Xcode command-line tools, CMake 3.22+, Python 3.9+, Git and Rust 1.88+.
 
 ```sh
-cargo test --locked
+python3 build_plugins.py
+```
+
+The helper fetches pinned official iPlug2 and VST3 SDK sources, applies two documented MIDI-adapter fixes and builds AU, VST3 and standalone into `build/formats/out/`. It does not install them into your plugin folders. It builds for the native architecture of the build machine; the published binaries here are arm64.
+
+Existing pinned checkouts can be supplied with `--framework /path/iPlug2 --sdk /path/vst3sdk`. The permissive framework and SDK licenses are included in this repository.
+
+## Rust library and integration
+
+```sh
 cargo test --locked --all-features
 cargo run --locked --example first_note
 cargo run --locked --features preview --bin hendrix-preview
 ```
 
-The last command opens the interactive interface preview. Press **Test A4** to feed a synthetic signal into the actual engine. The preview is useful for evaluating controls and appearance; use the library API for host audio and MIDI I/O.
+`hendrix-preview` is an optional synthetic-tone interface demo, separate from the real standalone audio/MIDI app.
 
-## Host integration
+The library exports `Processor`, parameter metadata and `midi::MidiReader`. Prepare/allocate before processing, apply parameter changes at a safe block boundary and keep the reader's parameter snapshot synchronized. `ffi.rs` exposes the C-compatible bridge used by the native formats. UI telemetry reads a separate atomic output handle.
 
-```rust
-use hendrix_audio_to_midi::{Plugin, Processor, INFO, midi::MidiReader};
+`MidiReader` owns only its emitted notes. Flush against the old destination before switching routes, disabling processing or removing an instance. Shared MIDI channels still require coordination by the host. The original ShroomsLoops engine and UI remain in the two `shroomsloops_*_reference.rs` files as integration references.
 
-let mut processor = Processor::new();
-processor.prepare(48_000.0, 128, 2);
-let params = std::array::from_fn(|i| INFO.params[i].default);
-let mut midi = MidiReader::default();
-let mut io = [vec![0.0; 128], vec![0.0; 128]];
+## Verification
 
-// In the host callback, after filling the already allocated input buffers:
-processor.process(&mut io, 128);
-midi.poll(&processor.output, &params, 0, |message| {
-    // Enqueue these three MIDI bytes through the host's realtime-safe MIDI output.
-    let _ = message;
-});
-```
+- 24 Rust tests: first-cycle tracking, chords, pick retriggers, bends, MIDI ownership, preset handling, allocation checks and C-bridge audio/MIDI behavior.
+- Official Steinberg VST3 validator: **47 passed, 0 failed**.
+- AU and VST3 offline host probes: a 440 Hz input produces A4 note-on and note-off; audio passes through. The AU probe also checks saved-state restoration.
+- Standalone launch, English/German switching, preset save/load/delete and the corrected layout checked in the running app.
+- All three bundles pass strict code-signature verification.
 
-Prepare and allocate before processing. Apply control changes at the host's safe block boundary, using `set_param(id, plain_value)`, and keep the parameter array supplied to `MidiReader` synchronized. The output state is available through `Processor::output` for UI feedback.
+These checks establish a tested beta, not exhaustive compatibility with every host or physical instrument. See `BUILD-TESTS.txt` for reproducible commands.
 
-`MidiReader` handles transposition, same-note retriggering, pitch-bend messages, and RPN bend-range configuration. Call `flush` against the **old** destination before switching MIDI outputs, disabling the instance, or removing it. Each reader owns only the notes that it emitted. Routing shared MIDI channels still requires coordination by the host.
+## License
 
-For the interface, enable the `gui` feature and call `gui::Panel::show`. Supply eligible MIDI destinations, consume parameter changes through the host, and serialize `panel.state` with the host project. Validate restored state before publishing it. Preset loading preserves the MIDI destination; new instances can read `bank.initial()` to inherit the project default.
+Copyright © 2026 **Moonshroom Studio**. Source is released under the [MIT License](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md) and `DEPENDENCY-LICENSES.txt`.
 
-## Starting preset: My Guitar
-
-The GUI includes the requested project preset: Poly, −72 dB threshold, 20.5 ms stability, 69.1 ms release, one voice, D#1–C8, A4 = 431.4 Hz, zero transposition, dynamic velocity, Balanced verification, and audio passthrough. Mono settings include Direct, retrigger on, 3 dB picking threshold, 10 ms minimum interval, ±2 semitones, and 4.9 ms bend smoothing.
-
-The processor's factory settings remain available through `INFO` and `presets::factory()`. Destination assignments belong to the host instance and are excluded from presets.
-
-## Testing
-
-The suite covers first-cycle timing at multiple rates and block sizes, low-note continuity, arbitrary signal phase, polyphonic chords, repeated picks, bends, silence and noise, allocation-free processing, MIDI ownership and release, preset persistence, responsive UI rendering, and all four clickable developer links. Synthetic tests establish reproducible behavior; real instruments and host routing require practical testing.
-
-## License and credits
-
-Copyright © 2026 **Moonshroom Studio**. Hendrix is released under the [MIT License](LICENSE).
-
-Parameter metadata helpers adapted from SoundCraft retain their original notices. See [third-party notices](THIRD_PARTY_NOTICES.md) and the included SoundCraft license texts. Rust dependencies retain their respective licenses.
-
-The illustrated portrait is generated artwork. Hendrix is developed by Moonshroom Studio.
+The portrait is generated artwork. Hendrix is developed by Moonshroom Studio.

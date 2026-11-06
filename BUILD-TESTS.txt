@@ -1,0 +1,35 @@
+Hendrix 0.1.0 beta — November 6, 2026
+
+Rust core and optional interface:
+  cargo test --locked --all-features
+  cargo run --locked --example first_note
+
+Native formats:
+  python3 build_plugins.py
+  codesign --verify --deep --strict build/formats/out/Hendrix.component
+  codesign --verify --deep --strict build/formats/out/Hendrix.vst3
+  codesign --verify --deep --strict build/formats/out/Hendrix.app
+
+Official VST3 validator (build from the pinned SDK):
+  cmake -S build/deps/vst3sdk -B build/validator -DCMAKE_BUILD_TYPE=Release -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=ON -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF
+  cmake --build build/validator --target validator --parallel 4
+  build/validator/bin/Release/validator build/formats/out/Hendrix.vst3
+  Result checked for release: 47 passed, 0 failed.
+
+AU functional test (current-process registration; no installation):
+  clang++ -std=c++20 -Wno-deprecated-declarations AudioUnitProbe.cpp -framework AudioToolbox -framework CoreFoundation -framework CoreMIDI -o build/AudioUnitProbe
+  build/AudioUnitProbe build/formats/out/Hendrix.component
+  Result checked: A4 note-on=1, note-off=1, audio peak=.400, restored threshold=-72 dB.
+
+VST3 functional test (after building the official validator):
+  clang++ -std=c++20 -fobjc-arc -DRELEASE=1 -Ibuild/deps/vst3sdk VST3Probe.cpp build/deps/vst3sdk/public.sdk/source/vst/hosting/module_mac.mm build/validator/lib/Release/libsdk_hosting.a build/validator/lib/Release/libsdk_common.a build/validator/lib/Release/libbase.a build/validator/lib/Release/libpluginterfaces.a -framework Cocoa -o build/VST3Probe
+  build/VST3Probe build/formats/out/Hendrix.vst3
+  Result checked: A4 note-on=1, note-off=1, audio peak=.400.
+
+Interactive checks:
+  Standalone opens; whole main interface changes EN/DE.
+  Save a named preset, select it, load it and delete that test preset.
+  Logo and links occupy the right column, in the requested order.
+  Devices and MIDI routing require the user's actual hardware/host configuration.
+
+Published binaries: Apple Silicon arm64, minimum macOS 12; ad-hoc signed, not notarized.

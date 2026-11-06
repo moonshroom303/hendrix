@@ -3,6 +3,7 @@
 #[cfg(feature = "gui")]
 pub mod branding;
 pub mod engine;
+pub mod ffi;
 #[cfg(feature = "gui")]
 pub mod gui;
 pub mod midi;
