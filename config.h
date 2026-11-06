@@ -1,8 +1,8 @@
 #pragma once
 #define PLUG_NAME "Hendrix"
 #define PLUG_MFR "Moonshroom Studio"
-#define PLUG_VERSION_HEX 0x00000100
-#define PLUG_VERSION_STR "0.1.0"
+#define PLUG_VERSION_HEX 0x00010000
+#define PLUG_VERSION_STR "1.0"
 #define PLUG_UNIQUE_ID 'Hndx'
 #define PLUG_MFR_ID 'Mshr'
 #define PLUG_URL_STR "https://moonshroom.moonshroom303.chatgpt.site/"

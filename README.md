@@ -10,13 +10,13 @@ Play a guitar or another instrument and drive a synthesizer with MIDI notes and 
 
 ## Downloads
 
-The [first public beta](https://github.com/moonshroom303/hendrix/releases/tag/v0.1.0) provides three **Apple Silicon / macOS 12+** formats:
+The [current beta](https://github.com/moonshroom303/hendrix/releases/tag/v1.0) provides three **Apple Silicon / macOS 12+** formats:
 
 | Format | Package | Installation |
 | --- | --- | --- |
-| Audio Unit v2 | `Hendrix-0.1.0-macOS-arm64-AU.zip` | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
-| VST3 | `Hendrix-0.1.0-macOS-arm64-VST3.zip` | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
-| Standalone | `Hendrix-0.1.0-macOS-arm64-Standalone.zip` | Copy `Hendrix.app` to Applications or another local folder. |
+| Audio Unit v2 | `Hendrix-1.0-macOS-arm64-AU.zip` | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
+| VST3 | `Hendrix-1.0-macOS-arm64-VST3.zip` | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
+| Standalone | `Hendrix-1.0-macOS-arm64-Standalone.zip` | Copy `Hendrix.app` to Applications or another local folder. |
 
 Each ZIP includes instructions and license notices. The builds are ad-hoc signed; **Apple notarization is not included**. Intel, Windows and Linux binaries are not part of this beta. The Rust detection library is independently reusable.
 

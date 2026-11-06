@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0
+
+- Add the supplied Moonshroom guitar-and-MIDI artwork as the macOS application icon.
+- Include the icon in reproducible builds and app bundles.
+- Audio/MIDI processing is unchanged.
+
 ## 0.1.0 — first public beta
 
 - Standalone macOS app, Audio Unit v2 and VST3 formats with the Rust Hendrix engine.
