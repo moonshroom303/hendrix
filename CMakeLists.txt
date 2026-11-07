@@ -9,10 +9,16 @@ if(NOT IPLUG2_DIR)
 endif()
 find_program(CARGO_EXECUTABLE cargo REQUIRED)
 set(RUST_TARGET_DIR "${CMAKE_BINARY_DIR}/rust")
-set(RUST_LIB "${RUST_TARGET_DIR}/release/libhendrix_audio_to_midi.a")
+set(HENDRIX_RUST_TARGET "" CACHE STRING "Rust target for macOS cross builds")
+if(HENDRIX_RUST_TARGET)
+  set(RUST_BUILD_ARGS --target "${HENDRIX_RUST_TARGET}")
+  set(RUST_LIB "${RUST_TARGET_DIR}/${HENDRIX_RUST_TARGET}/release/libhendrix_audio_to_midi.a")
+else()
+  set(RUST_LIB "${RUST_TARGET_DIR}/release/libhendrix_audio_to_midi.a")
+endif()
 file(GLOB RUST_SOURCES "${CMAKE_SOURCE_DIR}/*.rs")
 add_custom_command(OUTPUT "${RUST_LIB}"
-  COMMAND ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${RUST_TARGET_DIR} ${CARGO_EXECUTABLE} build --locked --manifest-path "${CMAKE_SOURCE_DIR}/Cargo.toml" --release --no-default-features
+  COMMAND ${CMAKE_COMMAND} -E env CARGO_TARGET_DIR=${RUST_TARGET_DIR} ${CARGO_EXECUTABLE} build --locked --manifest-path "${CMAKE_SOURCE_DIR}/Cargo.toml" --release --no-default-features ${RUST_BUILD_ARGS}
   DEPENDS ${RUST_SOURCES} Cargo.toml Cargo.lock VERBATIM)
 add_custom_target(hendrix-rust DEPENDS "${RUST_LIB}")
 add_library(hendrix-core STATIC IMPORTED GLOBAL)

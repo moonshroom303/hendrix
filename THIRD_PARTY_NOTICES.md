@@ -10,3 +10,5 @@ Hendrix is developed by Moonshroom Studio and released under the MIT License.
 `build_plugins.py` makes two clearly marked changes to the pinned iPlug2 source: it maps bipolar pitch bend to the full unsigned MIDI range in the VST3 adapter, and uses RtMidi's pointer overload to avoid a temporary allocation for each standalone MIDI event. All other framework copyrights and licenses are retained.
 
 The macOS interface includes two supplied performance photographs of Jimi Hendrix. The MIT software license does not cover those photographs. The Moonshroom logo was supplied by Moonshroom Studio. No endorsement by the depicted artist or his estate is implied.
+
+The portable CLAP and VST3 editions use nice-plug and nice-plug-egui under the ISC license. See nice-plug-LICENSE.txt and the dependency licenses included in each portable package.

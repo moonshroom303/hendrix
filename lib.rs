@@ -9,6 +9,8 @@ pub mod gui;
 pub mod midi;
 pub mod parameters;
 pub mod presets;
+#[cfg(feature = "portable")]
+mod portable;
 pub use engine::{INFO, Output, Processor};
 pub use parameters::Plugin;
 #[cfg(test)]

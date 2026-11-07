@@ -36,6 +36,7 @@ def main():
     parser.add_argument("--build", type=Path, default=Path("build"))
     parser.add_argument("--framework", type=Path)
     parser.add_argument("--sdk", type=Path)
+    parser.add_argument("--arch", choices=("arm64", "x86_64"), help="macOS target architecture")
     parser.add_argument("--jobs", type=int, default=min(4, os.cpu_count() or 2))
     args = parser.parse_args()
     if sys.platform != "darwin":
@@ -70,10 +71,17 @@ def main():
           """    // Hendrix patch: fixed-size short MIDI messages need no temporary heap vector.
     const unsigned char message[3] = {msg.mStatus, msg.mData1, msg.mData2};
     mAppHost->mMidiOut->sendMessage(message, 3);""")
+    arch_args = []
+    if args.arch:
+        rust_arch = {"arm64": "aarch64", "x86_64": "x86_64"}[args.arch]
+        arch_args = [
+            f"-DCMAKE_OSX_ARCHITECTURES={args.arch}",
+            f"-DHENDRIX_RUST_TARGET={rust_arch}-apple-darwin",
+        ]
     run("cmake", "-S", source, "-B", build / "formats", "-G", "Unix Makefiles",
         "-DCMAKE_BUILD_TYPE=Release", f"-DIPLUG2_DIR={framework}",
         "-DIGRAPHICS_BACKEND=NANOVG", "-DIGRAPHICS_RENDERER=GL2",
-        "-DIPLUG_DEPLOY_PLUGINS=OFF")
+        "-DIPLUG_DEPLOY_PLUGINS=OFF", *arch_args)
     run("cmake", "--build", build / "formats", "--parallel", str(args.jobs))
     for suffix in ("component", "vst3", "app"):
         bundle = build / "formats/out" / f"Hendrix.{suffix}"
