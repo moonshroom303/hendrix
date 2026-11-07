@@ -9,7 +9,7 @@ description = "First-cycle mono and polyphonic audio-to-MIDI detection with pitc
 repository = "https://github.com/moonshroom303/hendrix"
 homepage = "https://moonshroom.moonshroom303.chatgpt.site/"
 readme = "README.md"
-exclude = ["target", "*.zip", "shroomsloops_*_reference.rs"]
+exclude = ["target", "*.zip"]
 
 [lib]
 path = "lib.rs"

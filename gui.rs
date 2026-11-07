@@ -174,7 +174,7 @@ impl Panel {
             .ctx()
             .data(|d| d.get_temp::<egui::TextureHandle>(image_key))
             .unwrap_or_else(|| {
-                let pixels = image::load_from_memory(include_bytes!("hendrix-fire.png"))
+                let pixels = image::load_from_memory(include_bytes!("hendrix-live-01.png"))
                     .expect("bundled image")
                     .to_rgba8();
                 let t = ui.ctx().load_texture(
@@ -191,7 +191,12 @@ impl Panel {
         let width = ui.available_width().max(280.);
         let top = ui.cursor().top();
         let x = ui.min_rect().left();
-        let art = Rect::from_min_size(egui::pos2(x, top), egui::vec2(width, width / 1.5));
+        let art_width = width * 0.4;
+        let art_height = art_width * texture.size_vec2().y / texture.size_vec2().x;
+        let art = Rect::from_min_size(
+            egui::pos2(x + width - art_width, top),
+            egui::vec2(art_width, art_height),
+        );
         ui.painter().rect_filled(
             ui.available_rect_before_wrap(),
             8.,

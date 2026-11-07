@@ -6,19 +6,19 @@ Play a guitar or another instrument and drive a synthesizer with MIDI notes and 
 
 [Website](https://moonshroom.moonshroom303.chatgpt.site/) · [SoundCloud](https://www.soundcloud.com/moonshroom303) · [YouTube](https://www.youtube.com/@moonshroom303) · [ShroomsLoops](https://shroomsloops-studio-231026.moonshroom303.chatgpt.site/#)
 
-![Actual Hendrix standalone interface: English/German switch, Moonshroom logo and four website buttons](Hendrix.png)
+![Hendrix 1.0 with the 432 Hz and 440 Hz A4 presets, two performance photos and Moonshroom Studio branding](Hendrix.png)
 
 ## Downloads
 
-The [current beta](https://github.com/moonshroom303/hendrix/releases/tag/v1.0) provides three **Apple Silicon / macOS 12+** formats:
+[Hendrix 1.0](https://github.com/moonshroom303/hendrix/releases/tag/v1.0) provides three **Apple Silicon / macOS 12+** formats:
 
 | Format | Package | Installation |
 | --- | --- | --- |
-| Audio Unit v2 | [Hendrix-1.0-Build5-macOS-arm64-AU.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-Build5-macOS-arm64-AU.zip) | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
-| VST3 | [Hendrix-1.0-Build5-macOS-arm64-VST3.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-Build5-macOS-arm64-VST3.zip) | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
-| Standalone | [Hendrix-1.0-Build5-macOS-arm64-Standalone.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-Build5-macOS-arm64-Standalone.zip) | Copy `Hendrix.app` to Applications or another local folder. |
+| Audio Unit v2 | [Hendrix-1.0-macOS-arm64-AU.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-macOS-arm64-AU.zip) | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
+| VST3 | [Hendrix-1.0-macOS-arm64-VST3.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-macOS-arm64-VST3.zip) | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
+| Standalone | [Hendrix-1.0-macOS-arm64-Standalone.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-macOS-arm64-Standalone.zip) | Copy `Hendrix.app` to Applications or another local folder. |
 
-The current download is **Hendrix 1.0, build 5**, with the Moonshroom Studio logo and “MUSIC IS OPEN SOURCE” artwork. [Matching build 5 source](https://github.com/moonshroom303/hendrix/archive/refs/heads/main.zip). Each ZIP includes instructions and license notices. The builds are ad-hoc signed; **Apple notarization is not included**. Intel, Windows and Linux binaries are not part of this beta. The Rust detection library is independently reusable.
+Each ZIP includes installation instructions and license notices. The macOS packages are ad-hoc signed. The Rust detection library is independently reusable. [SHA-256 checksums](https://github.com/moonshroom303/hendrix/releases/download/v1.0/SHA256SUMS.txt).
 
 ## Getting sound
 
@@ -36,7 +36,8 @@ The AU is a music effect, not a synthesizer. Hendrix itself does not generate a 
 - **Direct** estimates a mono note from the first usable waveform cycle and verifies the provisional pitch afterward.
 - **5 / 10 / 15 ms** are mono acquisition deadlines. Pitches recognized later are rejected.
 - **Pick Threshold** and **Minimum Interval** control new attacks on a repeated note.
-- Threshold, stability, release, voice count, lowest/highest note, A4 reference, transposition and velocity refine the tracking.
+- The **A4 reference** has **432 Hz** and **440 Hz** presets. Turn the knob to set any reference between 400 and 480 Hz.
+- Threshold, stability, release, voice count, lowest/highest note, transposition and velocity refine the tracking.
 - Mono bends support ±2 / ±12 / ±24 semitones and adjustable smoothing. Pitch bend affects the entire MIDI channel; this is not independent per-note polyphonic bend.
 - **Save** stores the current controls under the entered preset name. Loading preserves MIDI routing. The bank, language and controls are stored with plugin state; the standalone app remembers its own state.
 - **Set as Default** also saves the bank and selected starting preset for newly created instances on this Mac. Existing project instances retain their saved state.
@@ -74,20 +75,14 @@ cargo run --locked --features preview --bin hendrix-preview
 
 The library exports `Processor`, parameter metadata and `midi::MidiReader`. Prepare/allocate before processing, apply parameter changes at a safe block boundary and keep the reader's parameter snapshot synchronized. `ffi.rs` exposes the C-compatible bridge used by the native formats. UI telemetry reads a separate atomic output handle.
 
-`MidiReader` owns only its emitted notes. Flush against the old destination before switching routes, disabling processing or removing an instance. Shared MIDI channels still require coordination by the host. The original ShroomsLoops engine and UI remain in the two `shroomsloops_*_reference.rs` files as integration references.
+`MidiReader` owns only its emitted notes. Flush against the old destination before switching routes, disabling processing or removing an instance. Shared MIDI channels still require coordination by the host.
 
 ## Verification
 
-- 24 Rust tests: first-cycle tracking, chords, pick retriggers, bends, MIDI ownership, preset handling, allocation checks and C-bridge audio/MIDI behavior.
-- Official Steinberg VST3 validator: **47 passed, 0 failed**.
-- AU and VST3 offline host probes: a 440 Hz input produces A4 note-on and note-off; audio passes through. The AU probe also checks saved-state restoration.
-- Standalone launch, English/German switching, preset save/load/delete and the corrected layout checked in the running app.
-- All three bundles pass strict code-signature verification.
-
-These checks establish a tested beta, not exhaustive compatibility with every host or physical instrument. See `BUILD-TESTS.txt` for reproducible commands.
+[BUILD-TESTS.txt](BUILD-TESTS.txt) lists checks for the Rust library, AU and VST3 host loading, and the macOS packages.
 
 ## License
 
 Copyright © 2026 **Moonshroom Studio**. Source is released under the [MIT License](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md) and `DEPENDENCY-LICENSES.txt`.
 
-The portrait is generated artwork. Hendrix is developed by Moonshroom Studio.
+See [third-party notices](THIRD_PARTY_NOTICES.md) for the photographs and artwork used in the interface.
