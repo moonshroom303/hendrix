@@ -14,11 +14,11 @@ The [current beta](https://github.com/moonshroom303/hendrix/releases/tag/v1.0) p
 
 | Format | Package | Installation |
 | --- | --- | --- |
-| Audio Unit v2 | `Hendrix-1.0-macOS-arm64-AU.zip` | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
-| VST3 | `Hendrix-1.0-macOS-arm64-VST3.zip` | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
-| Standalone | `Hendrix-1.0-macOS-arm64-Standalone.zip` | Copy `Hendrix.app` to Applications or another local folder. |
+| Audio Unit v2 | [Hendrix-1.0-Build5-macOS-arm64-AU.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-Build5-macOS-arm64-AU.zip) | Copy `Hendrix.component` to `~/Library/Audio/Plug-Ins/Components/`. |
+| VST3 | [Hendrix-1.0-Build5-macOS-arm64-VST3.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-Build5-macOS-arm64-VST3.zip) | Copy `Hendrix.vst3` to `~/Library/Audio/Plug-Ins/VST3/`. |
+| Standalone | [Hendrix-1.0-Build5-macOS-arm64-Standalone.zip](https://github.com/moonshroom303/hendrix/releases/download/v1.0/Hendrix-1.0-Build5-macOS-arm64-Standalone.zip) | Copy `Hendrix.app` to Applications or another local folder. |
 
-Each ZIP includes instructions and license notices. The builds are ad-hoc signed; **Apple notarization is not included**. Intel, Windows and Linux binaries are not part of this beta. The Rust detection library is independently reusable.
+The current download is **Hendrix 1.0, build 5**, with the Moonshroom Studio logo and “MUSIC IS OPEN SOURCE” artwork. [Matching build 5 source](https://github.com/moonshroom303/hendrix/archive/refs/heads/main.zip). Each ZIP includes instructions and license notices. The builds are ad-hoc signed; **Apple notarization is not included**. Intel, Windows and Linux binaries are not part of this beta. The Rust detection library is independently reusable.
 
 ## Getting sound
 
@@ -40,7 +40,7 @@ The AU is a music effect, not a synthesizer. Hendrix itself does not generate a 
 - Mono bends support ±2 / ±12 / ±24 semitones and adjustable smoothing. Pitch bend affects the entire MIDI channel; this is not independent per-note polyphonic bend.
 - **Save** stores the current controls under the entered preset name. Loading preserves MIDI routing. The bank, language and controls are stored with plugin state; the standalone app remembers its own state.
 - **Set as Default** also saves the bank and selected starting preset for newly created instances on this Mac. Existing project instances retain their saved state.
-- Click the **Moonshroom logo** to open SoundCloud. The four right-column buttons open Website, SoundCloud, YouTube and ShroomsLoops in the system browser.
+- Click the **Moonshroom Studio logo** to open the Moonshroom website. The four right-column buttons open Website, SoundCloud, YouTube and ShroomsLoops in the system browser.
 
 The initial **My Guitar** preset uses the requested settings: Poly, −72 dB threshold, 20.5 ms stability, 69.1 ms release, one voice, D#1–C8, A4 = 431.4 Hz, zero transposition, dynamic velocity, Balanced verification and audio passthrough. Mono-only controls become available when MONO is selected.
 

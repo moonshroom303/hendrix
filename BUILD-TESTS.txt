@@ -33,3 +33,12 @@ Interactive checks:
   Devices and MIDI routing require the user's actual hardware/host configuration.
 
 Published binaries: Apple Silicon arm64, minimum macOS 12; ad-hoc signed, not notarized.
+
+Hendrix 1.0 build 5 — November 7, 2026
+
+Moonshroom logo click verified against the native browser bridge.
+macOS deployment target: 12.0, arm64.
+Official VST3 validator, extended: 537 passed, 0 failed.
+AU and VST3 probes: A4 note-on=1, note-off=1, audio peak=.400.
+AU state threshold restored to -72 dB.
+Signed bundles verified after ZIP extraction.

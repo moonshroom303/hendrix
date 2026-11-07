@@ -2,6 +2,12 @@
 
 ## 1.0
 
+Build 5, 7 November 2026
+
+- Add the original Moonshroom Studio logo and “MUSIC IS OPEN SOURCE” artwork in AU, VST3 and the standalone app.
+- Open the Moonshroom website when the logo is clicked.
+- Keep the four separate website, SoundCloud, YouTube and ShroomsLoops links.
+
 - Add the supplied Moonshroom guitar-and-MIDI artwork as the macOS application icon.
 - Include the icon in reproducible builds and app bundles.
 - Audio/MIDI processing is unchanged.
