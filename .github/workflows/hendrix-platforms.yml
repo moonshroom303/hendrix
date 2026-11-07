@@ -78,7 +78,7 @@ jobs:
           git -C vst3sdk checkout --detach 3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96
           git -C vst3sdk submodule update --init --depth 1 -- base cmake pluginterfaces public.sdk
           cmake -S vst3sdk -B vst3validator -DCMAKE_BUILD_TYPE=Release \
-            -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=ON \
+            -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=OFF \
             -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF
           cmake --build vst3validator --config Release --target validator --parallel 2
       - name: Package and test the resulting plugin binaries
