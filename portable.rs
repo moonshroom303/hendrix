@@ -8,6 +8,45 @@ use nice_plug_egui::{
 use portable_egui as egui;
 use std::sync::{Arc, RwLock, atomic::Ordering::Acquire};
 
+#[cfg(test)]
+mod editor_tests {
+    use super::egui;
+
+    #[test]
+    fn portable_editor_renders_text_without_system_fonts() {
+        // Exercise the same egui version/features as CLAP and VST3. The native
+        // AU's separate GUI dependencies must not hide missing portable fonts.
+        let ctx = egui::Context::default();
+        let mut has_glyphs = true;
+        let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
+            egui::CentralPanel::default().show(ui, |ui| {
+                for family in [egui::FontFamily::Proportional, egui::FontFamily::Monospace] {
+                    has_glyphs &= ui.fonts_mut(|fonts| {
+                        fonts.has_glyphs(&egui::FontId::new(16.0, family.clone()), "HENDRIX ±2")
+                    });
+                    let text = ui.painter().layout_no_wrap(
+                        "HENDRIX · Threshold ±2 st".into(),
+                        egui::FontId::new(16.0, family),
+                        egui::Color32::WHITE,
+                    );
+                    assert!(
+                        text.size().x > 100.0,
+                        "Plugin labels must have readable glyphs"
+                    );
+                    ui.painter()
+                        .galley(ui.cursor().min, text, egui::Color32::WHITE);
+                }
+            });
+        });
+        output.textures_delta.clear();
+        assert!(has_glyphs, "Portable editor is missing its bundled fonts");
+        assert!(
+            !ctx.tessellate(output.shapes, output.pixels_per_point)
+                .is_empty()
+        );
+    }
+}
+
 const PARAM_COUNT: usize = 20;
 const BLOCK: usize = 32;
 // Match the native 1.0 factory preset in Hendrix.cpp.
