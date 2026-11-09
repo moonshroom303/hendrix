@@ -1,0 +1,75 @@
+name: Hendrix Linux editor regression
+on:
+  workflow_dispatch:
+  push:
+    branches: [fix/linux-editor-fonts]
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      CARGO_PROFILE_RELEASE_STRIP: none
+      CARGO_PROFILE_RELEASE_DEBUG: "1"
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install graphics and audio libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libx11-xcb-dev libxcb1-dev libxcb-xkb-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-icccm4-dev libxcb-util-dev libxkbcommon-dev libxkbcommon-x11-dev libxcursor-dev libxrandr-dev libxi-dev libxext-dev libgl1-mesa-dev libasound2-dev libjack-jackd2-dev xvfb imagemagick tesseract-ocr gdb
+      - name: Select Rust
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          echo 'RUSTUP_TOOLCHAIN=1.95.0' >> "$GITHUB_ENV"
+      - name: Set package version
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for name in ('Cargo.toml', 'Cargo.lock'):
+              p = Path(name)
+              text = p.read_text()
+              old = 'name = "hendrix-audio-to-midi"\nversion = "1.0.0"'
+              assert text.count(old) == 1
+              p.write_text(text.replace(old, old.replace('1.0.0', '1.1.0')))
+          p = Path('portable.rs')
+          p.write_text(p.read_text().replace("const VERSION: &'static str = \"1.0.0\";", "const VERSION: &'static str = env!(\"CARGO_PKG_VERSION\");"))
+          p = Path('package_portable.py')
+          p.write_text(p.read_text().replace('Hendrix-1.0', 'Hendrix-1.1').replace('Hendrix 1.0', 'Hendrix 1.1').replace('HENDRIX 1.0', 'HENDRIX 1.1'))
+          PY
+      - name: Test and build
+        run: |
+          cargo test --locked --release --features portable
+          cargo build --locked --release --features portable
+          python3 package_portable.py linux x86_64-unknown-linux-gnu target/release/libhendrix_audio_to_midi.so dist
+      - name: Test CLAP audio and MIDI
+        run: |
+          set -o pipefail
+          python3 ClapProbe.py dist/Hendrix-1.1-Linux-x86_64-CLAP-VST3/Hendrix.clap | tee dist/CLAP-test.txt
+      - name: Open, hide and reopen the Linux editor
+        run: |
+          set -o pipefail
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1800x1200x24' gdb --batch --return-child-result -ex run -ex 'thread apply all bt' --args python3 LinuxGuiProbe.py dist/Hendrix-1.1-Linux-x86_64-CLAP-VST3/Hendrix.clap dist/gui 2>&1 | tee dist/GUI-test.txt
+      - name: Validate VST3
+        if: success() || failure()
+        run: |
+          set -o pipefail
+          git clone --no-checkout https://github.com/steinbergmedia/vst3sdk.git vst3sdk
+          git -C vst3sdk checkout --detach 3cdf9ca5d1f5b1b21e0a86832aa4abe55607bd96
+          git -C vst3sdk submodule update --init --depth 1 -- base cmake pluginterfaces public.sdk
+          cmake -S vst3sdk -B vst3validator -DCMAKE_BUILD_TYPE=Release -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=OFF -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF
+          cmake --build vst3validator --config Release --target validator --parallel 2
+          validator=$(find vst3validator/bin -type f -name validator -print -quit)
+          test -n "$validator"
+          xvfb-run -a "$validator" dist/Hendrix-1.1-Linux-x86_64-CLAP-VST3/Hendrix.vst3 | tee dist/VST3-test.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Hendrix-1.1-Linux-GUI-test
+          path: |
+            dist/*.zip
+            dist/*-test.txt
+            dist/gui/
+          if-no-files-found: error
+          retention-days: 7

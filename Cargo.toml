@@ -19,18 +19,21 @@ crate-type = ["rlib", "staticlib", "cdylib"]
 default = []
 gui = ["dep:egui", "dep:image"]
 preview = ["gui", "dep:eframe"]
-portable = ["dep:nice-plug", "dep:nice-plug-egui", "dep:portable-egui", "dep:image"]
+portable = ["dep:nice-plug", "dep:nice-plug-egui", "dep:portable-egui", "dep:image", "dep:libloading"]
 
 [dependencies]
 rustfft = "=6.4.1"
 nice-plug = { version = "=0.4.2", default-features = false, features = ["vst3", "editor", "tracing-subscriber"], optional = true }
 nice-plug-egui = { version = "=0.6.0", optional = true }
-portable-egui = { package = "egui", version = "=0.37.0", optional = true, default-features = false }
+portable-egui = { package = "egui", version = "=0.37.0", optional = true, default-features = false, features = ["default_fonts"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 egui = { version = "=0.33.3", optional = true }
 image = { version = "=0.25.10", default-features = false, features = ["png"], optional = true }
 eframe = { version = "=0.33.0", default-features = false, features = ["default_fonts", "glow"], optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libloading = { version = "=0.8.9", optional = true }
 
 [[example]]
 name = "first_note"
