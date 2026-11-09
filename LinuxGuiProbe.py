@@ -9,6 +9,8 @@ from ClapProbe import *
 import subprocess
 import threading
 import time
+import faulthandler
+faulthandler.enable()
 
 
 BoolPlugin = CFUNCTYPE(c_bool, c_void_p)
@@ -123,9 +125,12 @@ def probe_gui(path, output):
             pump()
             screenshot = output / f"{name}.png"
             subprocess.run(["import", "-window", str(window), str(screenshot)], check=True, timeout=15)
-            text = subprocess.check_output(["tesseract", str(screenshot), "stdout", "--psm", "11"],
+            labels = output / f"{name}-labels.png"
+            subprocess.run(["convert", str(screenshot), "-crop", "450x720+0+0", "-resize", "300%", "-colorspace", "Gray", "-negate", str(labels)], check=True, timeout=15)
+            text = subprocess.check_output(["tesseract", str(labels), "stdout", "--psm", "6"],
                                            text=True, timeout=30)
             (output / f"{name}.txt").write_text(text)
+            print(text, flush=True)
             require("HENDRIX" in text.upper(), f"Editor title is not rendered: {name}\n{text}")
             require("THRESHOLD" in text.upper(), f"Editor controls are not rendered: {name}\n{text}")
             print(f"CLAP GUI: {name}, {width.value} x {height.value}, title and controls visible", flush=True)
@@ -142,7 +147,9 @@ def probe_gui(path, output):
             pump(0.1)
             require(gui.show(instance), "Editor show after hide failed")
             capture(f"reshow-{cycle + 1}")
+            print("Destroying editor", flush=True)
             gui.destroy(instance)
+            print("Editor destroyed", flush=True)
             created = False
             pump(0.1)
     finally:
