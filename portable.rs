@@ -186,6 +186,8 @@ impl Plugin for Hendrix {
     }
 
     fn editor(&mut self, _: AsyncExecutor<Self>) -> Option<Self::Editor> {
+        #[cfg(target_os = "linux")]
+        retain_linux_egl();
         create_egui_editor(
             self.params.editor.clone(),
             RepaintNotifier::default(),
@@ -282,6 +284,22 @@ impl Vst3Plugin for Hendrix {
 
 nice_export_clap!(Hendrix);
 nice_export_vst3!(Hendrix);
+
+// baseview loads EGL dynamically on its editor thread. On Linux, unloading
+// libEGL before that thread exits can leave a pthread TLS destructor pointing
+// into an unmapped library (SIGSEGV in __nptl_deallocate_tsd). Retain one loader
+// reference for the process lifetime, shared by every editor instance. A static
+// is deliberately not dropped; windows, contexts and textures still close
+// normally. If EGL is absent, baseview can continue using its GLX fallback.
+#[cfg(target_os = "linux")]
+fn retain_linux_egl() {
+    static EGL: std::sync::OnceLock<Option<libloading::Library>> = std::sync::OnceLock::new();
+    EGL.get_or_init(|| unsafe {
+        libloading::Library::new("libEGL.so.1")
+            .or_else(|_| libloading::Library::new("libEGL.so"))
+            .ok()
+    });
+}
 
 struct HendrixEditor {
     params: Arc<HendrixParams>,

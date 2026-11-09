@@ -1153,6 +1153,7 @@ dependencies = [
  "egui 0.33.3",
  "egui 0.37.0",
  "image",
+ "libloading",
  "nice-plug",
  "nice-plug-egui",
  "rustfft",
