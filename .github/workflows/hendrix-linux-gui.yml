@@ -10,14 +10,15 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      CARGO_PROFILE_RELEASE_STRIP: symbols
+      CARGO_PROFILE_RELEASE_STRIP: none
+      CARGO_PROFILE_RELEASE_DEBUG: "1"
       CARGO_INCREMENTAL: "0"
     steps:
       - uses: actions/checkout@v4
       - name: Install graphics and audio libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y libx11-dev libx11-xcb-dev libxcb1-dev libxcb-xkb-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-icccm4-dev libxcb-util-dev libxkbcommon-dev libxkbcommon-x11-dev libxcursor-dev libxrandr-dev libxi-dev libxext-dev libgl1-mesa-dev libasound2-dev libjack-jackd2-dev xvfb imagemagick tesseract-ocr
+          sudo apt-get install -y libx11-dev libx11-xcb-dev libxcb1-dev libxcb-xkb-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxcb-icccm4-dev libxcb-util-dev libxkbcommon-dev libxkbcommon-x11-dev libxcursor-dev libxrandr-dev libxi-dev libxext-dev libgl1-mesa-dev libasound2-dev libjack-jackd2-dev xvfb imagemagick tesseract-ocr gdb
       - name: Select Rust
         run: |
           rustup toolchain install 1.95.0 --profile minimal
@@ -49,8 +50,9 @@ jobs:
       - name: Open, hide and reopen the Linux editor
         run: |
           set -o pipefail
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1800x1200x24' python3 LinuxGuiProbe.py dist/Hendrix-1.1-Linux-x86_64-CLAP-VST3/Hendrix.clap dist/gui 2>&1 | tee dist/GUI-test.txt
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1800x1200x24' gdb --batch --return-child-result -ex run -ex 'thread apply all bt' --args python3 LinuxGuiProbe.py dist/Hendrix-1.1-Linux-x86_64-CLAP-VST3/Hendrix.clap dist/gui 2>&1 | tee dist/GUI-test.txt
       - name: Validate VST3
+        if: success() || failure()
         run: |
           set -o pipefail
           git clone --no-checkout https://github.com/steinbergmedia/vst3sdk.git vst3sdk
