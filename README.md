@@ -6,11 +6,14 @@ Play a guitar or another instrument and drive a synthesizer with MIDI notes and 
 
 [Website](https://moonshroom.moonshroom303.chatgpt.site/) · [SoundCloud](https://www.soundcloud.com/moonshroom303) · [YouTube](https://www.youtube.com/@moonshroom303) · [ShroomsLoops](https://shroomsloops-studio-231026.moonshroom303.chatgpt.site/#)
 
-![Hendrix 1.0 with the 432 Hz and 440 Hz A4 presets, two performance photos and Moonshroom Studio branding](Hendrix.png)
-
 ## Mobile beta
 
-[Hendrix Mobile](mobile/) brings the audio-to-MIDI engine, guitar fretboard, keys and MIDI recording to Android and iOS. See the mobile page for platform features, build instructions and the beta test packages.
+[Hendrix Mobile](mobile/) brings the audio-to-MIDI engine, guitar fretboard, keys and MIDI recording to Android and iOS. See the mobile page for platform features and build instructions.
+
+- **Android 12+** · [Download APK](https://github.com/moonshroom303/hendrix/releases/download/mobile-v0.1.12/Hendrix-0.1.12-Android.apk)
+- **iOS Simulator on Apple Silicon** · [Download ZIP](https://github.com/moonshroom303/hendrix/releases/download/mobile-v0.1.12/Hendrix-0.1.12-iOS-Simulator.zip)
+
+![Hendrix 1.0 with the 432 Hz and 440 Hz A4 presets, two performance photos and Moonshroom Studio branding](Hendrix.png)
 
 ## Downloads
 
