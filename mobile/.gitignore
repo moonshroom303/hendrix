@@ -1,0 +1,10 @@
+core/target/
+.DS_Store
+.toolchain/
+build/
+__pycache__/
+xcuserdata/
+*.xcuserstate
+*.jks
+*.keystore
+*.apk

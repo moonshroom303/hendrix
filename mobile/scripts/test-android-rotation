@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+ROOT="$PWD"
+SDK="${ANDROID_HOME:-$ROOT/.toolchain/android}"
+export JAVA_HOME="${JAVA_HOME:-$ROOT/.toolchain/jdk}"
+JAVA="$JAVA_HOME/bin"
+TOOLS="$SDK/build-tools/35.0.0"
+OUT="$ROOT/build/rotation-test"
+SERIAL="${1:-}"
+if [[ "$SERIAL" != emulator-* ]]; then
+    echo 'Usage: scripts/test-android-rotation emulator-PORT (dedicated test emulator only)' >&2
+    exit 2
+fi
+mkdir -p "$OUT/classes" "$OUT/dex"
+"$JAVA/javac" -encoding UTF-8 -source 17 -target 17 -classpath "$SDK/platforms/android-35/android.jar" -d "$OUT/classes" android/instrumentation/RotationTest.java
+classes=()
+while IFS= read -r -d '' name; do classes+=("$name"); done < <(find "$OUT/classes" -name '*.class' -print0)
+"$TOOLS/d8" --min-api 31 --lib "$SDK/platforms/android-35/android.jar" --output "$OUT/dex" "${classes[@]}"
+"$TOOLS/aapt2" link -I "$SDK/platforms/android-35/android.jar" --manifest android/instrumentation/AndroidManifest.xml -o "$OUT/unsigned.apk"
+(cd "$OUT/dex" && zip -q "$OUT/unsigned.apk" classes.dex)
+"$TOOLS/zipalign" -f 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
+"$JAVA/java" -jar "$TOOLS/lib/apksigner.jar" sign --ks "$ROOT/.toolchain/android-test.jks" --ks-pass pass:android --key-pass pass:android --out "$OUT/tests.apk" "$OUT/aligned.apk"
+ADB=("$SDK/platform-tools/adb" -s "$SERIAL")
+"${ADB[@]}" install -r "$ROOT/build/android/Hendrix-0.1.12-test.apk"
+"${ADB[@]}" install -r "$OUT/tests.apk"
+"${ADB[@]}" shell pm grant io.moonshroom.hendrix.mobile android.permission.RECORD_AUDIO
+"${ADB[@]}" shell am instrument -w io.moonshroom.hendrix.rotationtests/io.moonshroom.hendrix.tests.RotationTest | tee "$OUT/result.txt"
+rg -q '^PASS:' "$OUT/result.txt"
+mkdir -p "$OUT/artifacts"
+for file in portrait.png landscape.png manual-inputs.png pattern-player.png rotation-take.mid; do
+    "${ADB[@]}" pull "/sdcard/Android/data/io.moonshroom.hendrix.mobile/files/rotation-test/$file" "$OUT/artifacts/$file"
+done

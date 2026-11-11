@@ -1,0 +1,189 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hendrix · Moonshroom Studio</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' file:; img-src 'self' file:; base-uri 'none'; form-action 'none'">
+<link rel="stylesheet" href="classic.css">
+<div id="plugin"><header><div><h1>HENDRIX</h1><div class="subtitle" data-i="subtitle">REALTIME AUDIO / MIDI</div><div id="preview" data-i="preview">Interface preview · no audio input</div></div><div class="languages"><button id="en" aria-label="English">EN</button><button id="de" aria-label="Deutsch">DE</button></div></header>
+<main class="controls">
+<section class="purple"><h2 data-i="presetBank">PRESET BANK</h2><div class="row"><select class="grow" id="presets" aria-label="Preset"></select><button id="save" data-i="save">Save</button><button id="default" data-i="default">Set as Default</button><button id="delete" data-i="delete">Delete</button></div><div class="row"><label for="presetName" data-i="name">Name</label><input id="presetName" maxlength="80" value="My Guitar"></div><div class="hint" data-i="presetHint">Presets are stored on this device.</div><div class="status" id="status" role="status"></div></section>
+<section><h2 data-i="signal">SIGNAL & MIDI OUT</h2><div class="row"><div class="segments" data-segment="0"><button data-value="0">MONO</button><button data-value="1">POLY</button></div><button id="send" data-toggle="1" data-i="send">MIDI SEND</button></div><div class="meter"><i id="meter"></i></div><div class="stats" id="stats">IN −120.0 dB</div><details><summary data-i="verification">Verification</summary><div class="segments" data-segment="11"><button data-value="0" data-i="fast">Fast</button><button data-value="1" data-i="balanced">Balanced</button><button data-value="2" data-i="accurate">Accurate</button></div></details></section>
+<section class="fire"><h2 data-i="picking">PICKING & TIMING</h2><div id="monoTiming"><div class="segments" data-segment="16"><button data-value="0" data-i="direct">Direct</button><button data-value="1">5 ms</button><button data-value="2">10 ms</button><button data-value="3">15 ms</button></div><div class="knobs three"><div class="knobbox"><div class="knoblabel" data-i="repick">New pick</div><button data-toggle="17" data-i="retrigger" style="margin:13px auto 14px">RETRIGGER</button><div class="hint" id="attacks">0</div></div><div data-knob="18"></div><div data-knob="19"></div></div></div><div class="hint" data-i="timingHint">Mono only. Timed modes reject notes recognized after the acquisition deadline.</div></section>
+<section><h2 data-i="detection">DETECTION</h2><div class="knobs"><div data-knob="2"></div><div data-knob="3"></div><div data-knob="4"></div><div data-knob="7"></div></div></section>
+<section class="purple"><h2 data-i="tuning">NOTES & TUNING</h2><div class="row"><label for="voiceRange" data-i="voiceRange">Vocal range</label><select id="voiceRange" class="grow" aria-label="Vocal range"></select><button id="applyVoice" data-i="applyVoice">Apply Mono</button></div><div class="hint" data-i="voiceHint">Reference ranges; adjust both note limits for your own voice.</div><div class="knobs"><div data-knob="5"></div><div data-knob="6"></div><div class="a4-control">
+  <div data-knob="8"></div>
+  <div class="a4-presets" role="group" aria-label="A4">
+    <button type="button" data-a4="432" aria-pressed="false">432 Hz</button>
+    <button type="button" data-a4="440" aria-pressed="false">440 Hz</button>
+  </div>
+</div><div data-knob="9"></div></div><div id="latency" title=""></div></section>
+<section class="fire"><h2 data-i="expression">EXPRESSION</h2><div class="knobs"><div class="knobbox" id="monoBend"><div class="knoblabel" data-i="monoBends">Mono Bends</div><button data-toggle="13" data-i="bend" style="margin-top:11px">BEND</button><select id="bendRange" aria-label="Pitch-bend range" style="margin-top:9px"><option value="0">±2 st</option><option value="1">±12 st</option><option value="2">±24 st</option></select></div><div data-knob="15"></div><div data-knob="10"></div><div class="knobbox"><div class="knoblabel" data-i="pitchbend">Pitchbend</div><div class="bigbend" id="bend">+0.00</div><small data-i="semitones">Semitones</small></div></div><div class="hint" data-i="bendHint">Use the same bend range at the destination. Pitch bend affects the entire MIDI channel.</div></section>
+<section class="green"><h2 data-i="detected">DETECTED NOTES</h2><div class="notenames" id="notes" data-i="play">Play a note or a chord</div><div class="keyboard" id="keyboard" aria-label="Detected MIDI notes"></div></section>
+</main>
+</div>
+<script>
+'use strict';
+const D={en:{subtitle:'REALTIME AUDIO / MIDI',preview:'Interface preview · no audio input',presetBank:'PRESET BANK',save:'Save',default:'Set as Default',delete:'Delete',name:'Name',presetHint:'Presets are stored on this device.',signal:'SIGNAL & MIDI OUT',hostOut:'Host MIDI output',virtualOut:'Hendrix virtual MIDI port',devices:'Audio / MIDI device settings',send:'MIDI SEND',passthrough:'Audio Passthrough',verification:'Verification',fast:'Fast',balanced:'Balanced',accurate:'Accurate',picking:'PICKING & TIMING',direct:'Direct',repick:'New pick',retrigger:'RETRIGGER',timingHint:'Mono only. Timed modes reject notes recognized after the acquisition deadline.',detection:'DETECTION',tuning:'NOTES & TUNING',expression:'EXPRESSION',monoBends:'Mono Bends',bend:'BEND',pitchbend:'Pitchbend',semitones:'Semitones',bendHint:'Use the same bend range at the destination. Pitch bend affects the entire MIDI channel.',detected:'DETECTED NOTES',play:'Play a note or a chord',website:'Website',developed:'Developed by',dynamic:'Dynamic',on:'ON',off:'OFF',defaultMark:'Default',factory:'Factory settings',waiting:'waiting',period:'PERIOD',analysis:'ANALYSIS',newPicks:'new picks',latency:'Lowest note',latencyHint:'Estimated recognition time for the lowest permitted note: one to one-and-a-half periods. Hardware buffers and the synth add latency. Higher played notes are recognized faster.',saved:'Preset saved',defaultSaved:'Default saved',deleted:'Preset deleted',needName:'Enter a preset name.',hostSettings:'Configure audio and MIDI routing in your DAW.',noNote:'No note detected'},de:{subtitle:'ECHTZEIT AUDIO / MIDI',preview:'Oberflächenvorschau · kein Audioeingang',presetBank:'PRESETBANK',save:'Speichern',default:'Als Standard',delete:'Löschen',name:'Name',presetHint:'Presets werden auf diesem Gerät gespeichert.',signal:'SIGNAL & MIDI-AUSGANG',hostOut:'MIDI-Ausgang des Hosts',virtualOut:'Virtueller Hendrix-MIDI-Port',devices:'Audio-/MIDI-Geräteeinstellungen',send:'MIDI SENDEN',passthrough:'Audio durchlassen',verification:'Nachprüfung',fast:'Schnell',balanced:'Ausgewogen',accurate:'Genau',picking:'ANSCHLÄGE & ZEITMODUS',direct:'Direkt',repick:'Neu anschlagen',retrigger:'RETRIGGER',timingHint:'Nur Mono. Zeitmodi verwerfen Noten, die nach dem Erkennungsfenster erkannt werden.',detection:'ERKENNUNG',tuning:'NOTEN & STIMMUNG',expression:'EXPRESSION',monoBends:'Mono-Bends',bend:'BEND',pitchbend:'Pitchbend',semitones:'Halbtöne',bendHint:'Am Ziel denselben Bend-Bereich einstellen. Pitchbend wirkt auf den gesamten MIDI-Kanal.',detected:'ERKANNTE NOTEN',play:'Spiele eine Note oder einen Akkord',website:'Webseite',developed:'Entwickelt von',dynamic:'Dynamik',on:'AN',off:'AUS',defaultMark:'Standard',factory:'Werkseinstellungen',waiting:'wartet',period:'PERIODE',analysis:'ANALYSE',newPicks:'neue Anschläge',latency:'Tiefste Note',latencyHint:'Geschätzte Erkennung für die tiefste erlaubte Note: eine bis anderthalb Perioden. Audiopuffer und Synth kommen hinzu. Höhere gespielte Noten werden schneller erkannt.',saved:'Preset gespeichert',defaultSaved:'Standard gespeichert',deleted:'Preset gelöscht',needName:'Bitte einen Presetnamen eingeben.',hostSettings:'Audio- und MIDI-Routing im Host einstellen.',noNote:'Keine Note erkannt'}};
+D.de.voiceRange='Gesangsbereich'; D.de.applyVoice='Mono übernehmen'; D.de.voiceHint='Richtwerte nach Harvard / Yale. Beide Notengrenzen danach frei anpassen. C4 = mittleres C; B entspricht deutschem H.'; D.de.custom='Eigene Einstellung'; D.de.voiceApplied='Gesangsbereich übernommen · Regler anpassen und als eigenes Preset speichern.';
+D.en.voiceRange='Vocal range'; D.en.applyVoice='Apply Mono'; D.en.voiceHint='Harvard / Yale reference ranges. Adjust both note limits to your voice. C4 = middle C.'; D.en.custom='Custom settings'; D.en.voiceApplied='Vocal range applied · adjust the knobs and save as your own preset.';
+const vocalRanges=[{key:'bass',de:'Bass',en:'Bass',low:40,high:60},{key:'baritone',de:'Bariton',en:'Baritone',low:43,high:64},{key:'tenor',de:'Tenor',en:'Tenor',low:47,high:67},{key:'alto',de:'Alt',en:'Alto',low:53,high:74},{key:'mezzo',de:'Mezzosopran',en:'Mezzo-soprano',low:57,high:77},{key:'soprano',de:'Sopran',en:'Soprano',low:60,high:81}];
+const labels={en:['Mode','MIDI Send','Threshold','Stability','Release','Lowest Note','Highest Note','Voices','Reference A4','Transpose','Velocity','Verification','Audio Passthrough','Mono Bends','Bend Range','Smoothing','Acquisition','Retrigger','Pick Threshold','Minimum Interval'],de:['Erkennung','MIDI senden','Schwelle','Stabilität','Loslassen','Tiefste Note','Höchste Note','Stimmen','Referenz A4','Transpose','Velocity','Nachprüfung','Audio durchlassen','Mono-Bends','Bend-Bereich','Glättung','Erkennungsfenster','Neu anschlagen','Pick-Threshold','Mindestabstand']};
+const min=[0,0,-72,0,10,24,36,1,400,-24,0,0,0,0,0,0,0,0,.5,10],max=[1,1,-6,80,300,96,108,6,480,24,127,2,1,1,2,80,3,1,18,150],initial=[1,1,-72,20.5,69.1,27,108,1,431.4,0,0,1,1,1,0,4.9,0,1,3,10],integer=new Set([0,1,5,6,7,9,10,11,12,13,14,16,17]);
+let values=[...initial],language='de',state={version:1,language:'de',route:0,default:1,presets:[{id:1,name:'My Guitar',values:[...initial]}]},selected=1,lastMetrics={level:-120,window:0,bend:0,attacks:0,notes:[]};
+const t = key => D[language][key] || key;
+const $ = selector => document.querySelector(selector);
+function post(message) {
+  if (window.webkit?.messageHandlers.classicGuitar) {
+    window.webkit.messageHandlers.classicGuitar.postMessage(message);
+  } else if (window.HendrixClassic) {
+    window.HendrixClassic.post(JSON.stringify(message));
+  }
+}
+function persist() {
+  post({type: 'state', state: {...state, current: values, selected, draftName: $('#presetName').value}});
+}
+function format(i,v){if(i===5||i===6)return note(v)+' · '+Math.round(v);if(i===7)return String(Math.round(v));if(i===10)return v<1?t('dynamic'):String(Math.round(v));return v.toFixed(i===8||i===3||i===4||i===15||i===18||i===19?1:i===9?0:1)+(i===2||i===18?' dB':i===3||i===4||i===15||i===19?' ms':i===8?' Hz':i===9?' st':'')}
+function note(n){n=Math.round(n);return ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][((n%12)+12)%12]+(Math.floor(n/12)-1)}
+function set(i,v,notify=true){v=Math.min(max[i],Math.max(min[i],v));if(integer.has(i))v=Math.round(v);values[i]=v;if(notify)post({type:'parameters',values});render()}
+function gesture(i,v){set(i,v,false);persist()}
+for(const box of document.querySelectorAll('[data-knob]')){const i=Number(box.dataset.knob);box.className='knobbox';box.innerHTML='<div class="knoblabel"></div><button class="knob" role="slider" aria-valuemin="'+min[i]+'" aria-valuemax="'+max[i]+'"></button><output class="knobvalue"></output>';const b=box.querySelector('button');let drag=null;b.addEventListener('pointerdown',e=>{if(e.altKey){gesture(i,initial[i]);return}e.preventDefault();b.focus();drag={x:e.clientX,y:e.clientY,value:values[i]};b.setPointerCapture(e.pointerId);post({type:'drag',active:true})});b.addEventListener('pointermove',e=>{if(!drag)return;set(i,drag.value+((e.clientX-drag.x)-(e.clientY-drag.y))/180*(max[i]-min[i])*(e.shiftKey?.12:1))});function end(){if(drag){drag=null;post({type:'drag',active:false});persist()}}b.addEventListener('pointerup',end);b.addEventListener('pointercancel',end);b.addEventListener('lostpointercapture',end);b.addEventListener('dblclick',()=>gesture(i,initial[i]));b.addEventListener('keydown',e=>{if(['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'].includes(e.key)){e.preventDefault();gesture(i,values[i]+(['ArrowUp','ArrowRight'].includes(e.key)?1:-1)*Math.max(integer.has(i)?1:0,(max[i]-min[i])*(e.shiftKey?.001:.01)))}})}
+for(const group of document.querySelectorAll('[data-segment]'))for(const button of group.querySelectorAll('button'))button.onclick=()=>gesture(Number(group.dataset.segment),Number(button.dataset.value));
+for(const button of document.querySelectorAll('[data-toggle]'))button.onclick=()=>gesture(Number(button.dataset.toggle),values[Number(button.dataset.toggle)]>=.5?0:1);
+const a4Presets = document.querySelectorAll('[data-a4]');
+for (const button of a4Presets) {
+  button.addEventListener('click', () => gesture(8, Number(button.dataset.a4)));
+}
+$('#bendRange').onchange=e=>gesture(14,Number(e.target.value));
+for (const lang of ['en', 'de']) {
+  $('#' + lang).onclick = () => {
+    language = lang;
+    state.language = lang;
+    persist();
+    renderLanguage();
+  };
+}
+function renderLanguage(){document.documentElement.lang=language;for(const e of document.querySelectorAll('[data-i]')){if(e.id==='notes'&&lastMetrics.notes.length)continue;e.textContent=t(e.dataset.i)}$('#en').classList.toggle('active',language==='en');$('#de').classList.toggle('active',language==='de');for(const box of document.querySelectorAll('[data-knob]')){const i=Number(box.dataset.knob);box.querySelector('.knoblabel').textContent=labels[language][i];box.querySelector('button').setAttribute('aria-label',labels[language][i])}renderVocalRanges();renderPresets();render();metrics(lastMetrics)}
+function render(){
+  for (const button of a4Presets) {
+    const active = Math.abs(values[8] - Number(button.dataset.a4)) < 0.001;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  }
+  for(const box of document.querySelectorAll('[data-knob]')){const i=Number(box.dataset.knob),n=(values[i]-min[i])/(max[i]-min[i]),b=box.querySelector('button');b.style.setProperty('--angle',(270*n)+'deg');b.style.setProperty('--rotation',(-135+270*n)+'deg');b.setAttribute('aria-valuenow',values[i]);b.setAttribute('aria-valuetext',format(i,values[i]));box.querySelector('output').textContent=format(i,values[i])}for(const group of document.querySelectorAll('[data-segment]'))for(const b of group.querySelectorAll('button'))b.classList.toggle('active',Math.round(values[Number(group.dataset.segment)])===Number(b.dataset.value));for(const b of document.querySelectorAll('[data-toggle]')){const on=values[Number(b.dataset.toggle)]>=.5;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on);b.textContent=t(b.dataset.i)+(Number(b.dataset.toggle)===12?'':' · '+t(on?'on':'off'))}$('#monoTiming').classList.toggle('disabled',values[0]>=.5);$('#monoBend').classList.toggle('disabled',values[0]>=.5);$('#bendRange').value=Math.round(values[14]);let period=1000/(values[8]*2**((Math.min(values[5],values[6])-69)/12));$('#latency').textContent=values[0]<.5&&values[16]<.5?t('latency')+' ≈ '+period.toFixed(1)+'–'+(period*1.5).toFixed(1)+' ms':'';$('#latency').title=t('latencyHint')}
+function renderVocalRanges() {
+  const selector = $('#voiceRange'), previous = selector.value;
+  selector.replaceChildren();
+  for (const range of vocalRanges) {
+    const option = document.createElement('option');
+    option.value = range.key;
+    option.textContent = range[language] + ' · ' + note(range.low) + '–' + note(range.high);
+    selector.append(option);
+  }
+  if (vocalRanges.some(range => range.key === previous)) selector.value = previous;
+}
+$('#applyVoice').onclick = () => {
+  const range = vocalRanges.find(range => range.key === $('#voiceRange').value);
+  if (!range) return;
+  values = [...values];
+  values[0] = 0; values[5] = range.low; values[6] = range.high;
+  selected = 0;
+  $('#presetName').value = (language === 'de' ? 'Gesang · ' : 'Voice · ') + range[language];
+  renderPresets(); render(); persist();
+  $('#status').textContent = t('voiceApplied');
+};
+function renderPresets() {
+  const selector = $('#presets'); selector.replaceChildren();
+  if (!state.presets.some(p => p.id === selected)) selected = 0;
+  if (!selected) {
+    const option = document.createElement('option'); option.value = 0; option.textContent = t('custom'); selector.append(option);
+  }
+  for (const preset of state.presets) {
+    const option = document.createElement('option'); option.value = preset.id;
+    option.textContent = preset.name + (preset.id === state.default ? ' · ' + t('defaultMark') : '');
+    selector.append(option);
+  }
+  selector.value = selected;
+  $('#delete').disabled = !selected;
+}
+$('#presets').onchange = event => {
+  selected = Number(event.target.value);
+  const preset = state.presets.find(p => p.id === selected);
+  if (!preset) return;
+  $('#presetName').value = preset.name;
+  values = [...preset.values];
+  persist();
+  render();
+};
+
+function bank(op) {
+  const name = $('#presetName').value.trim();
+  if (op !== 'delete' && !name) {
+    $('#status').textContent = t('needName');
+    return;
+  }
+  if (op === 'delete') {
+    state.presets = state.presets.filter(p => p.id !== selected);
+    if (state.default === selected) state.default = 0;
+    selected = 0;
+  } else {
+    let preset = state.presets.find(p => p.name === name);
+    if (preset) {
+      preset.values = [...values];
+    } else {
+      if (state.presets.length >= 32) return;
+      preset = {id: Math.max(0, ...state.presets.map(p => p.id)) + 1, name, values: [...values]};
+      state.presets.push(preset);
+    }
+    selected = preset.id;
+    if (op === 'default') state.default = preset.id;
+  }
+  renderPresets();
+  persist();
+  $('#status').textContent = t(op === 'default' ? 'defaultSaved' : op === 'delete' ? 'deleted' : 'saved');
+}
+$('#save').onclick = () => bank('save');
+$('#default').onclick = () => bank('default');
+$('#delete').onclick = () => bank('delete');
+for(let n=36;n<84;n++){const e=document.createElement('i');e.className='key'+([1,3,6,8,10].includes(n%12)?' black':'');e.dataset.note=n;$('#keyboard').append(e)}
+function metrics(data){lastMetrics=data;$('#meter').style.width=Math.max(0,Math.min(100,(data.level+72)/72*100))+'%';$('#stats').textContent='IN '+data.level.toFixed(1)+' dB · '+t(values[0]<.5?'period':'analysis')+' '+(data.window>0?data.window.toFixed(1)+' ms':t('waiting'));$('#bend').textContent=(data.bend>=0?'+':'')+data.bend.toFixed(2);$('#attacks').textContent=data.attacks+' '+t('newPicks');$('#notes').textContent=data.notes.length?data.notes.map(n=>note(n[0])).join(' · '):t('play');for(const e of document.querySelectorAll('.key'))e.classList.toggle('played',data.notes.some(n=>n[0]===Number(e.dataset.note)))}
+function readValues(candidate) {
+  if (!Array.isArray(candidate) || candidate.length !== initial.length || !candidate.every(Number.isFinite)) return null;
+  return candidate.map((value, index) => {
+    const clamped = Math.min(max[index], Math.max(min[index], value));
+    return integer.has(index) ? Math.round(clamped) : clamped;
+  });
+}
+
+window.configureClassic = saved => {
+  if (saved?.version === 1) {
+    state.language = saved.language === 'en' ? 'en' : 'de';
+    language = state.language;
+    if (Array.isArray(saved.presets)) {
+      state.presets = saved.presets.slice(0, 32)
+        .filter(p => p && Number.isSafeInteger(p.id) && p.id > 0 && typeof p.name === 'string' && readValues(p.values))
+        .map(p => ({id: p.id, name: p.name.slice(0, 80), values: readValues(p.values)}));
+    }
+    state.default = state.presets.some(p => p.id === saved.default) ? saved.default : 0;
+    selected = saved.selected === 0 ? 0 : state.presets.some(p => p.id === saved.selected) ? saved.selected : state.default;
+    const preset = state.presets.find(p => p.id === selected);
+    values = readValues(saved.current) ?? (preset ? [...preset.values] : [...initial]);
+    $('#presetName').value = typeof saved.draftName === 'string' ? saved.draftName.slice(0,80) : preset ? preset.name : t('custom');
+  }
+  renderLanguage();
+  persist();
+  lastHeight = 0;
+  reportSize();
+};
+window.classicMetrics = metrics;
+
+const panel = $('#plugin');
+let lastHeight = 0;
+function reportSize() {
+  const height = Math.ceil(panel.getBoundingClientRect().height);
+  if (height !== lastHeight) {
+    lastHeight = height;
+    post({type: 'height', height});
+  }
+}
+new ResizeObserver(reportSize).observe(panel);
+renderLanguage();
+post({type: 'ready'});
+</script></html>

@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+ROOT="$PWD"
+case "${1:-simulator}" in
+    simulator) sdk=iphonesimulator; platform=iPhoneSimulator; target=aarch64-apple-ios-sim; swift_target=arm64-apple-ios17.0-simulator ;;
+    device) sdk=iphoneos; platform=iPhoneOS; target=aarch64-apple-ios; swift_target=arm64-apple-ios17.0 ;;
+    *) echo "Usage: $0 [simulator|device]" >&2; exit 2 ;;
+esac
+if [[ -x "$ROOT/.toolchain/cargo/bin/cargo" ]]; then
+    export CARGO_HOME="$ROOT/.toolchain/cargo" RUSTUP_HOME="$ROOT/.toolchain/rustup"
+    export PATH="$CARGO_HOME/bin:$PATH"
+fi
+export IPHONEOS_DEPLOYMENT_TARGET=17.0
+export SDKROOT="$(xcrun --sdk "$sdk" --show-sdk-path)"
+app="$ROOT/build/$sdk/Hendrix.app"
+mkdir -p "$app"
+cargo build --locked --manifest-path core/Cargo.toml --release --target "$target"
+xcrun --sdk "$sdk" clang -target "$swift_target" -isysroot "$SDKROOT" -std=c11 -O2 \
+    -Icore/include -c native/session.c -o "$ROOT/build/$sdk/session.o"
+xcrun --sdk "$sdk" swiftc -target "$swift_target" -sdk "$SDKROOT" -module-name Hendrix -O \
+    -module-cache-path "$ROOT/build/swift-cache" -import-objc-header native/session.h -Xcc -I"$ROOT/core/include" \
+    ios/*.swift "$ROOT/build/$sdk/session.o" "core/target/$target/release/libhendrix_mobile_core.a" \
+    -framework Security -framework CoreFoundation -framework SystemConfiguration -o "$app/Hendrix"
+cp ios/Info.plist "$app/Info.plist"
+ditto classic "$app/classic"
+/usr/libexec/PlistBuddy -c "Add :CFBundleSupportedPlatforms array" -c "Add :CFBundleSupportedPlatforms:0 string $platform" "$app/Info.plist"
+if [[ "$sdk" == iphonesimulator ]]; then codesign --force --sign - "$app"; fi
+echo "$app"

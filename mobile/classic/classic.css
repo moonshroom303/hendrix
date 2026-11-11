@@ -1,0 +1,73 @@
+:root{color-scheme:dark;--lime:#a6ff48;--cyan:#45e6ee;--purple:#cf77f9;--fire:#ffaf53;--ink:#e4efeb;--muted:#94aeb1}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#020d13;color:var(--ink);font:13px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{overflow:auto}button,input,select{font:inherit;color:inherit}button,select{border:1px solid #284953;border-radius:4px;background:linear-gradient(#14303a,#06151e);padding:5px 9px;cursor:pointer}button:hover,select:hover{border-color:var(--cyan)}button.active{color:var(--lime);border-color:var(--lime);box-shadow:inset 0 0 12px #a6ff4824}button:disabled{opacity:.38;cursor:default}input{min-width:0;border:1px solid #24454d;background:#04141c;border-radius:3px;padding:5px 7px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--lime);outline-offset:3px}#plugin{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+  grid-template-rows:auto 1fr;
+  column-gap:18px;
+  align-items:start;
+  min-height:100vh;
+  max-width:1600px;
+  margin:auto;
+  border:1px solid #285867;
+  border-radius:7px;
+  padding:16px;
+  background:radial-gradient(ellipse at top right,#162128,#031018 65%);
+}
+header,main,aside{position:relative}header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:17px}h1{font-size:42px;font-weight:400;line-height:1;margin:0 0 7px;letter-spacing:1px}.subtitle{color:var(--lime);font:11px ui-monospace,monospace;font-weight:600}.languages{display:flex;gap:4px}.languages button{padding:4px 8px}.controls{grid-column:1;grid-row:2;min-width:0;display:grid;gap:8px;padding-bottom:16px}section{--accent:var(--cyan);padding:11px;border:1px solid color-mix(in srgb,var(--accent) 26%,transparent);border-radius:6px;background:#04131ce8;box-shadow:inset 0 1px 14px #0003}section h2{font-size:11px;line-height:1.25;font-weight:500;color:var(--accent);margin:0 0 9px;letter-spacing:.35px}.purple{--accent:var(--purple)}.fire{--accent:var(--fire)}.green{--accent:var(--lime)}.row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.row+.row{margin-top:7px}.grow{flex:1;min-width:100px}#presetName{width:145px;flex:1}small,.hint{font-size:10px;line-height:1.4;color:var(--muted)}.hint{margin-top:7px}.meter{height:5px;border-radius:3px;background:#10232b;overflow:hidden;margin:10px 0 7px}.meter>i{display:block;height:100%;width:0;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}.stats{font:11px ui-monospace,monospace;color:var(--cyan)}details{margin-top:7px}summary{font-size:11px;color:var(--muted);cursor:pointer}.knobs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.knobs.two{grid-template-columns:repeat(2,minmax(0,1fr))}.knobs.three{grid-template-columns:repeat(3,minmax(0,1fr))}.knobbox{text-align:center;min-width:0}.knoblabel{font-size:12px;color:var(--muted);min-height:20px;margin-top:2px}.knob{display:block;position:relative;width:47px;height:47px;border-radius:50%;padding:0;margin:4px auto 5px;background:conic-gradient(from 225deg,var(--accent) 0deg,var(--accent) var(--angle),#19313b var(--angle),#19313b 270deg,transparent 270deg);border:1px solid #28434e;cursor:ns-resize;touch-action:none}.knob:before{content:"";position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#17303a,#041018 70%);box-shadow:inset 0 0 8px #000a}.knob:after{position:absolute;content:"";width:2px;height:13px;background:var(--ink);left:calc(50% - 1px);top:7px;transform-origin:1px 16px;transform:rotate(var(--rotation));border-radius:1px;box-shadow:0 0 4px var(--accent)}.knobvalue{display:block;font:12px ui-monospace,monospace;white-space:nowrap}.knobvalue.zero{color:var(--muted)}.segments{display:flex;gap:4px;flex-wrap:wrap}.segments button{padding:4px 9px}.disabled{opacity:.38;pointer-events:none}.bigbend{font:27px ui-monospace,monospace;color:var(--fire);text-align:center;margin-top:4px}.notenames{color:var(--muted);font-size:17px;margin-bottom:8px}.keyboard{display:flex;gap:2px;height:28px}.key{background:#28464f;flex:1;border-radius:1px}.key.black{background:#0c252e}.key.played{background:var(--lime);box-shadow:0 0 10px var(--lime)}#latency{font:10px ui-monospace,monospace;color:var(--fire);margin-top:5px;min-height:13px}
+.a4-control{min-width:0}
+.a4-presets{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:6px}
+.a4-presets button{font-size:11px;line-height:1.2;padding:3px 6px;white-space:nowrap}
+.studio{grid-column:2;grid-row:2;display:grid;gap:12px;min-width:0}
+.portraits{display:grid;gap:9px;margin:0}
+.portraits img{display:block;width:100%;height:auto;border-radius:6px;border:1px solid #624437}
+.studio-card{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:center;
+  gap:10px;
+  padding:11px;
+  background:#08151c;
+  border:1px solid #355044;
+  border-radius:6px;
+  text-align:center;
+}
+.logo{display:block;padding:6px;background:#030a0d;border:1px solid #274039;border-radius:5px}
+.logo-art{display:block;position:relative}
+.logo-art img{display:block;width:100%;height:auto}
+.logo-art::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:url(moonshroom-studio.png) center / 100% 100% no-repeat;
+  /* Keep the original artwork and lift only the dark wordmark for contrast. */
+  clip-path:inset(76.5% 0 15% 0);
+  filter:brightness(0) invert(.94);
+  pointer-events:none;
+}
+.logo:hover,.logo:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.studio nav{display:grid;gap:6px}
+.studio nav a{display:block;color:var(--ink);text-decoration:none;text-transform:uppercase;font-size:11px;letter-spacing:.6px;padding:7px 4px;border:1px solid #4c6e59;border-radius:4px;background:linear-gradient(#183324,#041a18);box-shadow:inset 0 1px 10px #a6ff4817}
+.studio nav a:hover{color:var(--lime);border-color:var(--lime);box-shadow:0 0 10px #a6ff4833}
+.credit{grid-column:1/-1;font-size:10px;color:var(--muted)}
+.credit strong{color:var(--lime)}
+.status{min-height:15px;color:var(--purple);font-size:11px;margin-top:6px}#send.active{background:linear-gradient(#518022,#183009);color:#edffe6;box-shadow:inset 0 0 9px #a6ff4870}#route{width:100%}.devices{margin-top:7px;font-size:10px;width:100%}#preview{font-size:10px;color:var(--muted);display:none;margin-top:5px}
+@media(max-width:650px){
+  #plugin{display:block;padding:11px}
+  .studio{gap:10px}
+  .portraits{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  .studio-card{max-width:380px;width:100%;margin:auto}
+  h1{font-size:36px}
+  .knoblabel{font-size:11px}
+  .knobvalue{font-size:10px}
+}
+/* The native instrument screen owns scrolling and device routing. */
+html,body,#plugin{min-height:0}
+body{overflow:hidden}
+#plugin{padding:12px}
+button,select{min-height:32px}
+.knob{min-height:47px}
+header{margin-bottom:10px}
+
+/* Controls and the studio footer flank the native MIDI input surface. */
+#plugin { display: block; }
+#plugin .controls { padding-bottom: 0; }
+.studio { padding: 0 0 12px; }

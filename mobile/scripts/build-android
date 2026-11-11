@@ -1,0 +1,56 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+ROOT="$PWD"
+if [[ -x "$ROOT/.toolchain/cargo/bin/cargo" ]]; then
+    export CARGO_HOME="$ROOT/.toolchain/cargo" RUSTUP_HOME="$ROOT/.toolchain/rustup"
+    export PATH="$CARGO_HOME/bin:$PATH"
+fi
+export JAVA_HOME="${JAVA_HOME:-$ROOT/.toolchain/jdk}"
+export PATH="$JAVA_HOME/bin:$PATH"
+SDK="${ANDROID_HOME:-$ROOT/.toolchain/android}"
+NDK="${HENDRIX_NDK:-$SDK/ndk/27.3.13750724}"
+TOOLS="$SDK/build-tools/35.0.0"
+PLATFORM="$SDK/platforms/android-35/android.jar"
+BIN="$NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+TMP="$ROOT/build/android"
+STAGE="$TMP/stage"
+mkdir -p "$STAGE" "$TMP/classes"
+build_native() {
+    local abi="$1" triple="$2" linker="$3" cargo_var="$4"
+    local cc="$BIN/$linker"
+    mkdir -p "$STAGE/lib/$abi"
+    env "$cargo_var=$cc" cargo build --locked --manifest-path core/Cargo.toml --release --target "$triple"
+    "$cc" -shared -std=c11 -O2 -Wl,--no-undefined -Wl,-z,max-page-size=16384 \
+        -Icore/include -Inative native/session.c native/gm_synth.c android/native/jni.c android/native/gm_jni.c \
+        "core/target/$triple/release/libhendrix_mobile_core.a" -ldl -llog -lm \
+        -o "$STAGE/lib/$abi/libhendrix.so"
+    "$BIN/llvm-strip" --strip-unneeded "$STAGE/lib/$abi/libhendrix.so"
+}
+build_native arm64-v8a aarch64-linux-android aarch64-linux-android31-clang CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER
+build_native x86_64 x86_64-linux-android x86_64-linux-android31-clang CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER
+# Source edits may remove anonymous classes; never package stale compiled code.
+find "$TMP/classes" -type f -name '*.class' -delete
+javac -encoding UTF-8 -source 17 -target 17 -classpath "$PLATFORM" -d "$TMP/classes" android/src/io/moonshroom/hendrix/*.java
+classes=()
+while IFS= read -r -d '' name; do classes+=("$name"); done < <(find "$TMP/classes" -name '*.class' -print0)
+"$TOOLS/d8" --min-api 31 --lib "$PLATFORM" --output "$STAGE" "${classes[@]}"
+mkdir -p "$TMP/assets"
+ditto classic "$TMP/assets/classic"
+ditto android/assets "$TMP/assets"
+mkdir -p "$TMP/assets/licenses"
+cp core/LICENSE "$TMP/assets/licenses/Hendrix-MIT.txt"
+cp core/SoundCraft-LICENSE-MIT.txt core/SoundCraft-LICENSE-APACHE.txt "$TMP/assets/licenses/"
+"$TOOLS/aapt2" link -I "$PLATFORM" -A "$TMP/assets" --manifest android/AndroidManifest.xml -o "$TMP/unsigned.apk"
+(cd "$STAGE" && zip -q -r "$TMP/unsigned.apk" classes.dex lib)
+"$TOOLS/zipalign" -f -P 16 4 "$TMP/unsigned.apk" "$TMP/aligned.apk"
+KEY="$ROOT/.toolchain/android-test.jks"
+mkdir -p "$ROOT/.toolchain"
+if [[ ! -f "$KEY" ]]; then
+    keytool -genkeypair -keyalg RSA -keysize 2048 -validity 3650 -alias hendrix-test -keystore "$KEY" \
+        -storepass android -keypass android -dname "CN=Hendrix Mobile Test"
+fi
+"$TOOLS/apksigner" sign --ks "$KEY" --ks-pass pass:android --key-pass pass:android \
+    --out "$TMP/Hendrix-0.1.12-test.apk" "$TMP/aligned.apk"
+"$TOOLS/apksigner" verify --verbose "$TMP/Hendrix-0.1.12-test.apk"
+echo "$TMP/Hendrix-0.1.12-test.apk"

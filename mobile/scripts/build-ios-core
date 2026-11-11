@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+ROOT="$PWD"
+if [[ -x "$ROOT/.toolchain/cargo/bin/cargo" ]]; then
+    export CARGO_HOME="$ROOT/.toolchain/cargo" RUSTUP_HOME="$ROOT/.toolchain/rustup"
+    export PATH="$CARGO_HOME/bin:$PATH"
+else
+    export PATH="$PATH:$HOME/.cargo/bin:/opt/homebrew/bin"
+fi
+export IPHONEOS_DEPLOYMENT_TARGET=17.0
+case "$1" in
+    aarch64-apple-ios) export SDKROOT="$(xcrun --sdk iphoneos --show-sdk-path)" ;;
+    aarch64-apple-ios-sim) export SDKROOT="$(xcrun --sdk iphonesimulator --show-sdk-path)" ;;
+    *) echo "Unsupported Rust target: $1" >&2; exit 2 ;;
+esac
+cargo build --locked --manifest-path core/Cargo.toml --release --target "$1"

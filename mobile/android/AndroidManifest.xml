@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.moonshroom.hendrix.mobile"
+    android:versionCode="13" android:versionName="0.1.12">
+    <uses-sdk android:minSdkVersion="31" android:targetSdkVersion="35" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    <uses-feature android:name="android.software.midi" android:required="false"/>
+    <uses-feature android:name="android.hardware.usb.host" android:required="false"/>
+    <application android:label="Hendrix" android:theme="@android:style/Theme.Material.NoActionBar"
+        android:allowBackup="false" android:extractNativeLibs="true">
+        <activity android:name="io.moonshroom.hendrix.HendrixActivity" android:exported="true"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <service android:name="io.moonshroom.hendrix.BleMidiService" android:exported="false"
+            android:foregroundServiceType="connectedDevice"/>
+        <provider android:name="io.moonshroom.hendrix.TakeProvider" android:authorities="io.moonshroom.hendrix.mobile.takes"
+            android:exported="false" android:grantUriPermissions="true"/>
+    </application>
+</manifest>

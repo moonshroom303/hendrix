@@ -1,0 +1,7 @@
+TinySoundFont (MIT), Bernhard Schelling / Steve Folta
+Commit: 853a0a171759f1ddba0de1442133a75912bbeffa
+https://raw.githubusercontent.com/schellingb/TinySoundFont/853a0a171759f1ddba0de1442133a75912bbeffa/tsf.h
+
+TimGM6mb 1.3 (GPL-2), Tim Brechbill
+https://deb.debian.org/debian/pool/main/t/timgm6mb-soundfont/timgm6mb-soundfont_1.3.orig.tar.gz
+SoundFont and license texts: android/assets/synth/

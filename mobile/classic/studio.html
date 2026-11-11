@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moonshroom Studio</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'self' file:; img-src 'self' file:; base-uri 'none'; form-action 'none'">
+<link rel="stylesheet" href="classic.css">
+<aside class="studio" id="studio">
+  <figure class="portraits">
+    <img src="hendrix-live-01.png" width="1046" height="1041" alt="Jimi Hendrix kneels beside his burning guitar">
+    <img src="hendrix-live-02.png" width="978" height="1298" alt="Jimi Hendrix raises his hands above the flames">
+  </figure>
+  <div class="studio-card">
+    <a class="logo" data-link="0" href="https://moonshroom.moonshroom303.chatgpt.site/" target="_blank" rel="noopener noreferrer" aria-label="Moonshroom Studio · Website">
+      <span class="logo-art"><img src="moonshroom-studio.png" width="1312" height="1199" alt="Moonshroom Studio – Music is Open Source"></span>
+    </a>
+    <nav>
+      <a data-link="0" href="https://moonshroom.moonshroom303.chatgpt.site/" target="_blank" rel="noopener noreferrer" >Website</a>
+      <a data-link="1" href="https://www.soundcloud.com/moonshroom303" target="_blank" rel="noopener noreferrer">SoundCloud</a>
+      <a data-link="2" href="https://www.youtube.com/@moonshroom303" target="_blank" rel="noopener noreferrer">YouTube</a>
+      <a data-link="3" href="https://shroomsloops-studio-231026.moonshroom303.chatgpt.site/#" target="_blank" rel="noopener noreferrer">ShroomsLoops</a>
+    </nav>
+    <div class="credit"><span>entwickelt von</span> <strong>moonshroom studio</strong> <span>· Hendrix</span></div>
+  </div>
+</aside>
+<script>
+'use strict';
+function post(message) {
+  if (window.webkit?.messageHandlers.classicGuitar) {
+    window.webkit.messageHandlers.classicGuitar.postMessage(message);
+  } else if (window.HendrixClassic) {
+    window.HendrixClassic.post(JSON.stringify(message));
+  }
+}
+for (const link of document.querySelectorAll('[data-link]')) {
+  link.addEventListener('click', event => {
+    event.preventDefault();
+    post({type: 'link', index: Number(link.dataset.link)});
+  });
+}
+
+const studio = document.getElementById('studio');
+let lastHeight = 0;
+window.reportStudioSize = (force = false) => {
+  const height = Math.ceil(studio.getBoundingClientRect().height);
+  if (!force && height === lastHeight) return;
+  lastHeight = height;
+  post({type: 'height', height});
+};
+new ResizeObserver(() => window.reportStudioSize()).observe(studio);
+</script>
+</html>
